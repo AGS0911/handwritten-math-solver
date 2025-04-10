@@ -9,24 +9,25 @@ const openai = new OpenAI({
 export async function POST(request: Request) {
   try {
     const { imagePath } = await request.json();
-    
+
     const { data: { publicUrl } } = supabase
       .storage
       .from('math-images')
       .getPublicUrl(imagePath);
-    
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "user",
           content: [
-            { type: "text", text: `This image contains a handwritten math problem. 
+            {
+              type: "text", text: `This image contains a handwritten math problem. 
 Please respond in **strict JSON format** like this:
 
 {
   "problem": "extracted equation in plain text",
-  "solution": "step-by-step explanation"
+  "solution": "step-by-step explanation with each step starting on a new line"
 }
 
 If you can't recognize the problem, say:
@@ -47,18 +48,18 @@ If you can't recognize the problem, say:
     } else {
       result = '{}'
     }
-        
+
     const { data, error } = await supabase
       .from('math_solutions')
       .insert([
-        { 
+        {
           image_path: imagePath,
           problem_text: result.problem,
           solution: result.solution,
         }
       ])
       .select();
-      
+
     if (error) throw error;
 
     return NextResponse.json({ success: true, result });

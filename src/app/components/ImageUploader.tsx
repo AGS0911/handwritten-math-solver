@@ -14,52 +14,52 @@ export default function ImageUploader({ onSolutionReceived, setIsLoading }: Imag
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
-    
+
     setIsLoading(true);
     setUploadError(null);
     setDebugInfo(null);
-    
+
     try {
       console.log('File upload started');
       const file = acceptedFiles[0];
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
-      
+
       setDebugInfo('Uploading to Supabase...');
       console.log('Uploading to Supabase:', filePath);
-      
+
       const { error: uploadError } = await supabase.storage
         .from('math-images')
         .upload(filePath, file);
-        
+
       if (uploadError) {
         console.error('Supabase upload error:', uploadError);
         throw uploadError;
       }
-      
+
       setDebugInfo('Image uploaded, calling API...');
       console.log('File uploaded successfully, calling API');
-      
+
       const response = await fetch('/api/solve-math', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imagePath: filePath })
       });
-      
+
       console.log('API response status:', response.status);
       setDebugInfo(`API response status: ${response.status}`);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`API error: ${response.status} - ${errorText}`);
       }
-      
+
       const data = await response.json();
       console.log('API response data:', data);
-      
+
       if (data.error) throw new Error(data.error);
-      
+
       onSolutionReceived(data.result);
       setDebugInfo('Success!');
     } catch (error: any) {
@@ -69,15 +69,15 @@ export default function ImageUploader({ onSolutionReceived, setIsLoading }: Imag
       setIsLoading(false);
     }
   }, [onSolutionReceived, setIsLoading]);
-  
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg']
     },
     maxFiles: 1
   });
-  
+
   return (
     <div className="w-full max-w-md mx-auto">
       <div
@@ -95,16 +95,16 @@ export default function ImageUploader({ onSolutionReceived, setIsLoading }: Imag
           </div>
         )}
       </div>
-      
+
       {uploadError && (
-        <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+        <div className="mt-4 p-3 bg-red-50 text-red-700 text-center rounded-md text-sm">
           <p className="font-medium">Error:</p>
           <p>{uploadError}</p>
         </div>
       )}
-      
+
       {debugInfo && (
-        <div className="mt-4 p-3 bg-blue-50 text-blue-700 rounded-md text-sm">
+        <div className="mt-4 p-3 bg-blue-50 text-blue-700 text-center rounded-md text-sm">
           <p className="font-medium">Status:</p>
           <p>{debugInfo}</p>
         </div>
