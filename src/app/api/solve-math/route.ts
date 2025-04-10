@@ -21,17 +21,32 @@ export async function POST(request: Request) {
         {
           role: "user",
           content: [
-            { type: "text", text: `This image contains a handwritten math problem. Extract and solve the math problem in this image step-by-step. Format your response like this:
-                  "Problem": "the recognized math expression",
-                  "Solution": "step-by-step solution"
-                }`},
+            { type: "text", text: `This image contains a handwritten math problem. 
+Please respond in **strict JSON format** like this:
+
+{
+  "problem": "extracted equation in plain text",
+  "solution": "step-by-step explanation"
+}
+
+If you can't recognize the problem, say:
+{
+  "problem": "N/A",
+  "solution": "N/A"
+}`},
             { type: "image_url", image_url: { url: publicUrl } }
           ],
         },
       ],
     });
 
-    const result = JSON.parse(response.choices[0].message.content || '{}');
+    let result;
+    if (response.choices[0].message.content !== null) {
+      let cleanedResult = response.choices[0].message.content.replace(/```json\n?|```/g, '');
+      result = JSON.parse(cleanedResult);
+    } else {
+      result = '{}'
+    }
         
     const { data, error } = await supabase
       .from('math_solutions')
@@ -40,7 +55,6 @@ export async function POST(request: Request) {
           image_path: imagePath,
           problem_text: result.problem,
           solution: result.solution,
-          created_at: new Date()
         }
       ])
       .select();
