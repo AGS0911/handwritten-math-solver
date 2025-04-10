@@ -1,0 +1,1 @@
+This is a math equation solver that takes in an image of math, recognizes the problem and returns a solution to the user. Link: https://handwritten-math-solver-npmy.vercel.app/
