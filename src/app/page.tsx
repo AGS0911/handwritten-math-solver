@@ -17,7 +17,7 @@ export default function Home() {
           AI Math Problem Solver
         </h1>
         <p className="text-center text-gray-600 mb-12">
-          Upload a handwritten math problem and get the solution instantly
+          Upload a handwritten math problem and get the solution
         </p>
         
         <ImageUploader 
