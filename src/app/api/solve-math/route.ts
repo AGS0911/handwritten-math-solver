@@ -43,13 +43,13 @@ If you can't recognize the problem, say:
 
     let result;
     if (response.choices[0].message.content !== null) {
-      let cleanedResult = response.choices[0].message.content.replace(/```json\n?|```/g, '');
+      const cleanedResult = response.choices[0].message.content.replace(/```json\n?|```/g, '');
       result = JSON.parse(cleanedResult);
     } else {
       result = '{}'
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('math_solutions')
       .insert([
         {
