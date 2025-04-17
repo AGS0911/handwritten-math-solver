@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import ImageUploader from '../app/components/ImageUploader';
 import MathSolution from '../app/components/MathSolution';
-
+import MathChatbot from './components/MathChatbot';
 export default function Home() {
   const [solution, setSolution] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -33,6 +33,10 @@ export default function Home() {
         )}
         
         <MathSolution solution={solution} />
+        <MathChatbot 
+         problem={solution?.problem} 
+         solution={solution?.solution} 
+         />
       </div>
     </main>
   );
